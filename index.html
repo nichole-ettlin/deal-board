@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Totango Deal Board</title>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!--                                                                        -->
+<!--   ##  EDIT YOUR NUMBERS HERE  ##                                       -->
+<!--                                                                        -->
+<!--   This is the ONLY part you touch each week.                          -->
+<!--   Change the values, save the file, re-upload it. That's it.          -->
+<!--   Type the total as a raw number (no commas) — commas are added       -->
+<!--   for you automatically.                                              -->
+<!--                                                                        -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<script>
+const BOARD = {
+
+  teamName:     "Totango",          // shown in the top-left title -> "Totango Deal Board"
+  ytdSales:     4250000,            // ← TOTAL NewCo SALES, YEAR TO DATE  ($)
+  lastUpdated:  "June 17, 2026",    // ← the date you last updated this
+
+};
+</script>
+<!-- ════════════════  nothing below here needs editing  ═════════════════ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Azeret+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    /* ── Totango brand palette ── */
+    --base:      #172E30;  /* Baseline */
+    --base-deep: #102123;
+    --panel-top: #1C3A3B;
+    --panel-bot: #163030;
+    --line:      #2B4A49;
+    --surge:     #B9F663;  /* Surge */
+    --surge-deep:#6E9A35;
+    --text:      #F0EFE5;  /* Breve */
+    --muted:     #8BA39B;
+    --display:   'Archivo', system-ui, sans-serif;
+    --mono:      'Azeret Mono', ui-monospace, monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, #234543 0%, var(--base) 55%, var(--base-deep) 100%) fixed,
+      var(--base);
+    color:var(--text);
+    font-family:var(--display);
+    min-height:100%;
+    display:flex; align-items:center; justify-content:center;
+    padding:clamp(16px,4vw,48px);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* faint horizontal scanlines — "stadium screen" texture */
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,.016) 0 1px, transparent 1px 4px);
+    opacity:.6; z-index:5;
+  }
+
+  .board{
+    position:relative;
+    width:min(900px,100%);
+    background:linear-gradient(180deg, var(--panel-top), var(--panel-bot));
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:clamp(26px,4.5vw,52px);
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 40px 120px -40px rgba(0,0,0,.85);
+    z-index:10;
+  }
+
+  /* ── signage bar ── */
+  .signage{
+    padding-bottom:clamp(18px,3vw,30px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    font-weight:800;
+    font-size:clamp(.82rem,1.7vw,1.05rem);
+    letter-spacing:.3em; text-transform:uppercase; color:var(--text);
+  }
+  .brand span{ color:var(--surge); }
+
+  /* ── headline number ── */
+  .label{
+    margin-top:clamp(34px,6vw,60px); text-align:center;
+    font-weight:700; font-size:clamp(.72rem,1.7vw,1rem);
+    letter-spacing:.34em; text-transform:uppercase; color:var(--muted);
+  }
+  .total{
+    margin-top:clamp(10px,2vw,20px);
+    margin-bottom:clamp(34px,6vw,60px);
+    text-align:center;
+    font-family:var(--mono); font-weight:800;
+    font-variant-numeric:tabular-nums; line-height:.92;
+    font-size:clamp(3rem,14vw,10rem);
+    color:var(--surge); letter-spacing:-.01em;
+    text-shadow:0 0 38px rgba(185,246,99,.30);
+  }
+  .total .cur{ font-size:.46em; vertical-align:.16em; margin-right:.06em; color:var(--surge-deep); }
+
+  /* ── footer ── */
+  .footer{
+    padding-top:clamp(16px,2.5vw,22px);
+    border-top:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    font-size:clamp(.64rem,1.3vw,.8rem); color:var(--muted); letter-spacing:.04em;
+  }
+
+  .fs{
+    position:fixed; top:18px; right:18px; z-index:30;
+    width:38px; height:38px; display:grid; place-items:center;
+    background:var(--panel-bot); border:1px solid var(--line); border-radius:9px;
+    color:var(--muted); cursor:pointer; transition:color .2s, border-color .2s;
+  }
+  .fs:hover, .fs:focus-visible{ color:var(--surge); border-color:var(--surge-deep); outline:none; }
+  .fs svg{ width:17px; height:17px; }
+
+  @media (max-width:560px){
+    .footer{ flex-direction:column; gap:6px; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<button class="fs" id="fsBtn" title="Fullscreen" aria-label="Toggle fullscreen">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/>
+  </svg>
+</button>
+
+<main class="board" role="main">
+  <div class="signage">
+    <div class="brand" id="brand">Totango <span>Deal Board</span></div>
+  </div>
+
+  <div class="label">Total NewCo Sales — Year to Date</div>
+  <div class="total" id="total"><span class="cur">$</span><span id="totalNum">0</span></div>
+
+  <div class="footer">
+    <span id="updated">Updated —</span>
+    <span>Refreshed weekly</span>
+  </div>
+</main>
+
+<script>
+(function(){
+  const cfg = (typeof BOARD !== 'undefined' && BOARD) || window.BOARD || {};
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+
+  document.getElementById('brand').innerHTML =
+    (cfg.teamName || 'Totango') + ' <span>Deal Board</span>';
+  document.title = (cfg.teamName || 'Totango') + ' Deal Board';
+  document.getElementById('updated').textContent = 'Updated ' + (cfg.lastUpdated || '—');
+
+  const ytd = Number(cfg.ytdSales) || 0;
+  const totalNum = document.getElementById('totalNum');
+
+  if (reduce){ totalNum.textContent = fmt(ytd); return; }
+
+  const DUR = 1900;
+  const t0 = performance.now();
+  const easeOutExpo = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+  function tick(now){
+    const t = Math.min((now - t0) / DUR, 1);
+    totalNum.textContent = fmt(ytd * easeOutExpo(t));
+    if (t < 1) requestAnimationFrame(tick); else totalNum.textContent = fmt(ytd);
+  }
+  requestAnimationFrame(tick);
+
+  document.getElementById('fsBtn').addEventListener('click', ()=>{
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
+})();
+</script>
+</body>
+</html>
