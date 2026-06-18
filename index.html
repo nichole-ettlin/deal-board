@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Totango Deal Board</title>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!--                                                                        -->
+<!--   ##  EDIT YOUR NUMBERS HERE  ##                                       -->
+<!--                                                                        -->
+<!--   This is the ONLY part you touch each week.                          -->
+<!--   Change the values, save the file, re-upload it. That's it.          -->
+<!--   Type each number raw (no commas) — commas and the $ are added       -->
+<!--   for you. The big NewCo Sales total adds these two up automatically. -->
+<!--                                                                        -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<script>
+const BOARD = {
+
+  teamName:     "Totango",          // top-left title -> "Totango Deal Board"
+  conversion:   1200000,            // ← Total Conversion $
+  netNewBiz:    1136169,            // ← Total Net New Business
+
+  // The "Updated" date now fills in automatically from your last GitHub edit,
+  // so you can leave this blank. (Only type a date here, e.g. "June 17, 2026",
+  // if you ever want to override what's shown.)
+  lastUpdated:  "",
+
+  // (The big "Total NewCo Sales" figure = Conversion + Net New Business.)
+};
+</script>
+<!-- ════════════════  nothing below here needs editing  ═════════════════ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Azeret+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    /* ── Totango brand palette ── */
+    --base:      #172E30;  /* Baseline */
+    --base-deep: #102123;
+    --panel-top: #1C3A3B;
+    --panel-bot: #163030;
+    --line:      #2B4A49;
+    --surge:     #B9F663;  /* Surge */
+    --surge-deep:#6E9A35;
+    --text:      #F0EFE5;  /* Breve */
+    --muted:     #8BA39B;
+    --display:   'Archivo', system-ui, sans-serif;
+    --mono:      'Azeret Mono', ui-monospace, monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, #234543 0%, var(--base) 55%, var(--base-deep) 100%) fixed,
+      var(--base);
+    color:var(--text);
+    font-family:var(--display);
+    min-height:100%;
+    display:flex; align-items:center; justify-content:center;
+    padding:clamp(16px,4vw,48px);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* faint horizontal scanlines — "stadium screen" texture */
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,.016) 0 1px, transparent 1px 4px);
+    opacity:.6; z-index:5;
+  }
+
+  .board{
+    position:relative;
+    width:min(900px,100%);
+    background:linear-gradient(180deg, var(--panel-top), var(--panel-bot));
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:clamp(26px,4.5vw,52px);
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 40px 120px -40px rgba(0,0,0,.85);
+    z-index:10;
+    overflow:hidden;            /* belt-and-braces: never let content escape the card */
+  }
+
+  /* ── signage bar ── */
+  .signage{
+    padding-bottom:clamp(18px,3vw,30px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    font-weight:800;
+    font-size:clamp(.82rem,1.7vw,1.05rem);
+    letter-spacing:.3em; text-transform:uppercase; color:var(--text);
+  }
+  .brand span{ color:var(--surge); }
+
+  /* ── headline number (the focal point) ── */
+  .label{
+    margin-top:clamp(32px,5.5vw,56px); text-align:center;
+    font-weight:700; font-size:clamp(.72rem,1.7vw,1rem);
+    letter-spacing:.34em; text-transform:uppercase; color:var(--muted);
+  }
+  .total{
+    margin-top:clamp(10px,2vw,20px);
+    margin-bottom:clamp(22px,3.5vw,36px);
+    text-align:center;
+    font-size:clamp(2.4rem,11vw,8rem);   /* upper bound only — JS shrinks to fit */
+    line-height:.92;
+  }
+  .total-inner{
+    display:inline-block; white-space:nowrap;
+    font-family:var(--mono); font-weight:800;
+    font-variant-numeric:tabular-nums;
+    color:var(--surge); letter-spacing:-.01em;
+    text-shadow:0 0 20px rgba(185,246,99,.26);
+  }
+  .total-inner .cur{ font-size:.46em; vertical-align:.16em; margin-right:.06em; color:var(--surge-deep); }
+
+  /* ── breakdown buckets (secondary) ── */
+  .buckets{
+    margin-bottom:clamp(30px,5vw,52px);
+    display:grid; grid-template-columns:1fr 1fr;
+  }
+  .bucket{ text-align:center; padding:clamp(4px,1vw,10px) clamp(12px,2vw,24px); }
+  .bucket + .bucket{ border-left:1px solid var(--line); }
+  .bucket-val{
+    font-family:var(--mono); font-weight:700; font-variant-numeric:tabular-nums;
+    font-size:clamp(1.15rem,3.2vw,1.95rem); color:var(--text); line-height:1;
+    white-space:nowrap;
+  }
+  .bucket-label{
+    margin-top:10px; font-weight:700;
+    font-size:clamp(.58rem,1.2vw,.74rem);
+    letter-spacing:.16em; text-transform:uppercase; color:var(--muted);
+  }
+
+  /* ── footer ── */
+  .footer{
+    padding-top:clamp(16px,2.5vw,22px);
+    border-top:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    font-size:clamp(.64rem,1.3vw,.8rem); color:var(--muted); letter-spacing:.04em;
+  }
+
+  .fs{
+    position:fixed; top:18px; right:18px; z-index:30;
+    width:38px; height:38px; display:grid; place-items:center;
+    background:var(--panel-bot); border:1px solid var(--line); border-radius:9px;
+    color:var(--muted); cursor:pointer; transition:color .2s, border-color .2s;
+  }
+  .fs:hover, .fs:focus-visible{ color:var(--surge); border-color:var(--surge-deep); outline:none; }
+  .fs svg{ width:17px; height:17px; }
+
+  @media (max-width:560px){
+    .buckets{ grid-template-columns:1fr; }
+    .bucket + .bucket{ border-left:none; border-top:1px solid var(--line); margin-top:14px; padding-top:18px; }
+    .footer{ flex-direction:column; gap:6px; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<button class="fs" id="fsBtn" title="Fullscreen" aria-label="Toggle fullscreen">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/>
+  </svg>
+</button>
+
+<main class="board" role="main">
+  <div class="signage">
+    <div class="brand" id="brand">Totango <span>Deal Board</span></div>
+  </div>
+
+  <div class="label">Total NewCo Sales — Year to Date</div>
+  <div class="total" id="total"><span class="total-inner" id="totalInner"><span class="cur">$</span><span id="totalNum">0</span></span></div>
+
+  <div class="buckets">
+    <div class="bucket">
+      <div class="bucket-val" id="convVal">$0</div>
+      <div class="bucket-label">Total Conversion $</div>
+    </div>
+    <div class="bucket">
+      <div class="bucket-val" id="nnbVal">$0</div>
+      <div class="bucket-label">Total Net New Business</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span id="updated">Updated —</span>
+    <span>Refreshed weekly</span>
+  </div>
+</main>
+
+<script>
+(function(){
+  const cfg = (typeof BOARD !== 'undefined' && BOARD) || window.BOARD || {};
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+  const money = n => '$' + fmt(n);
+
+  document.getElementById('brand').innerHTML =
+    (cfg.teamName || 'Totango') + ' <span>Deal Board</span>';
+  document.title = (cfg.teamName || 'Totango') + ' Deal Board';
+  (async function setUpdated(){
+    const el = document.getElementById('updated');
+    const fmtDate = d => d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+    if (cfg.lastUpdated){ el.textContent = 'Updated ' + cfg.lastUpdated; return; }   // manual override
+    try {
+      const res = await fetch(window.location.href, { method:'HEAD', cache:'no-store' });
+      const lm = res.headers.get('last-modified');
+      if (lm){ el.textContent = 'Updated ' + fmtDate(new Date(lm)); return; }         // when the file went live
+    } catch(e){}
+    el.textContent = 'Updated ' + fmtDate(new Date());                               // fallback: today
+  })();
+
+  const conv = Number(cfg.conversion) || 0;
+  const nnb  = Number(cfg.netNewBiz)  || 0;
+  const ytd  = conv + nnb;
+
+  const total     = document.getElementById('total');
+  const totalInner= document.getElementById('totalInner');
+  const totalNum  = document.getElementById('totalNum');
+  const convVal   = document.getElementById('convVal');
+  const nnbVal    = document.getElementById('nnbVal');
+  const board     = document.querySelector('.board');
+  const finalStr  = fmt(ytd);
+
+  // Shrink the headline figure until it fits inside the card (with margin for
+  // the glow). Measured against the final number, which is the widest.
+  function fitNumber(){
+    total.style.fontSize = '';
+    const keep = totalNum.textContent;
+    totalNum.textContent = finalStr;
+    const cs = getComputedStyle(board);
+    const avail = board.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const target = avail * 0.88;
+    let size = parseFloat(getComputedStyle(total).fontSize);
+    let guard = 0;
+    while (totalInner.getBoundingClientRect().width > target && size > 12 && guard < 400){
+      size *= 0.96; total.style.fontSize = size + 'px'; guard++;
+    }
+    totalNum.textContent = keep;
+  }
+
+  fitNumber();
+  if (document.fonts && document.fonts.ready){ document.fonts.ready.then(fitNumber); }
+  let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt = setTimeout(fitNumber, 120); });
+
+  if (reduce){
+    totalNum.textContent = finalStr;
+    convVal.textContent  = money(conv);
+    nnbVal.textContent   = money(nnb);
+    return;
+  }
+
+  const DUR = 1900;
+  const t0 = performance.now();
+  const easeOutExpo = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+  function tick(now){
+    const t = Math.min((now - t0) / DUR, 1);
+    const e = easeOutExpo(t);
+    totalNum.textContent = fmt(ytd * e);
+    convVal.textContent  = money(conv * e);
+    nnbVal.textContent   = money(nnb * e);
+    if (t < 1) requestAnimationFrame(tick);
+    else { totalNum.textContent = finalStr; convVal.textContent = money(conv); nnbVal.textContent = money(nnb); }
+  }
+  requestAnimationFrame(tick);
+
+  document.getElementById('fsBtn').addEventListener('click', ()=>{
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
+})();
+</script>
+</body>
+</html>
