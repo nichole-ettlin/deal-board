@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Totango Deal Board</title>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!--                                                                        -->
+<!--   ██  EDIT YOUR NUMBERS HERE  ██                                       -->
+<!--                                                                        -->
+<!--   This is the ONLY part you touch each week.                          -->
+<!--   Change the values, save the file, re-upload it. That's it.          -->
+<!--   Type raw numbers (no commas) — the board adds commas for you.       -->
+<!--                                                                        -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<script>
+const BOARD = {
+
+  teamName:     "Totango",          // shown in the top-left title -> "Totango Deal Board"
+  period:       "FY2026",           // small label, top-right. Set to "" to hide it.
+  ytdSales:     4250000,            // ← TOTAL NewCo SALES, YEAR TO DATE  ($)
+  annualGoal:   6000000,            // ← FULL-YEAR TARGET ($).  Set to 0 to hide the goal bar.
+  lastUpdated:  "June 17, 2026",    // ← the date you last updated this
+
+  // Three supporting stats. Edit the label + value text however you like.
+  // Delete a line to show fewer, or set stats to [] to hide them entirely.
+  stats: [
+    { label: "Deals Closed",   value: "142"    },
+    { label: "New Logos",      value: "38"     },
+    { label: "Avg Deal Size",  value: "$29.9K" },
+  ],
+
+};
+</script>
+<!-- ════════════════  nothing below here needs editing  ═════════════════ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Azeret+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    /* ── Totango brand palette ── */
+    --base:      #172E30;  /* Baseline */
+    --base-deep: #102123;
+    --panel-top: #1C3A3B;
+    --panel-bot: #163030;
+    --inset:     #0F2122;
+    --line:      #2B4A49;
+    --echo:      #324D5F;  /* Echo  */
+    --surge:     #B9F663;  /* Surge */
+    --surge-deep:#6E9A35;
+    --forte:     #FF7E4F;  /* Forte */
+    --text:      #F0EFE5;  /* Breve */
+    --muted:     #8BA39B;
+    --display:   'Archivo', system-ui, sans-serif;
+    --mono:      'Azeret Mono', ui-monospace, monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, #234543 0%, var(--base) 55%, var(--base-deep) 100%) fixed,
+      var(--base);
+    color:var(--text);
+    font-family:var(--display);
+    min-height:100%;
+    display:flex; align-items:center; justify-content:center;
+    padding:clamp(16px,4vw,48px);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* faint horizontal scanlines — "stadium screen" texture */
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,.016) 0 1px, transparent 1px 4px);
+    opacity:.6; z-index:5;
+  }
+
+  #confetti{ position:fixed; inset:0; pointer-events:none; z-index:40; }
+
+  .board{
+    position:relative;
+    width:min(960px,100%);
+    background:linear-gradient(180deg, var(--panel-top), var(--panel-bot));
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:clamp(22px,4vw,46px);
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 40px 120px -40px rgba(0,0,0,.85);
+    z-index:10;
+  }
+
+  /* ── signage bar ── */
+  .signage{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding-bottom:clamp(18px,3vw,30px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    font-weight:800;
+    font-size:clamp(.82rem,1.7vw,1.05rem);
+    letter-spacing:.3em; text-transform:uppercase; color:var(--text);
+  }
+  .brand span{ color:var(--surge); }
+  .period{
+    font-weight:700;
+    font-size:clamp(.62rem,1.3vw,.76rem);
+    letter-spacing:.26em; text-transform:uppercase; color:var(--muted);
+  }
+
+  /* ── headline number ── */
+  .label{
+    margin-top:clamp(26px,5vw,46px); text-align:center;
+    font-weight:700; font-size:clamp(.72rem,1.7vw,1rem);
+    letter-spacing:.34em; text-transform:uppercase; color:var(--muted);
+  }
+  .total{
+    margin-top:clamp(8px,1.5vw,16px); text-align:center;
+    font-family:var(--mono); font-weight:800;
+    font-variant-numeric:tabular-nums; line-height:.92;
+    font-size:clamp(3rem,13.5vw,9.5rem);
+    color:var(--surge); letter-spacing:-.01em;
+    text-shadow:0 0 38px rgba(185,246,99,.30);
+    transition:text-shadow .5s ease;
+  }
+  .total .cur{ font-size:.46em; vertical-align:.16em; margin-right:.06em; color:var(--surge-deep); }
+  .total.win{ text-shadow:0 0 60px rgba(185,246,99,.6); }
+
+  /* ── quota track ── */
+  .track-wrap{ margin:clamp(26px,4.5vw,42px) auto 0; max-width:780px; }
+  .track-top{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
+  .track-pct{
+    font-family:var(--mono); font-weight:800;
+    font-size:clamp(1rem,2.4vw,1.55rem); color:var(--text); font-variant-numeric:tabular-nums;
+  }
+  .track-pct b{ color:var(--surge); }
+  .track-goal{
+    font-weight:700; font-size:clamp(.66rem,1.4vw,.82rem);
+    letter-spacing:.16em; text-transform:uppercase; color:var(--muted);
+  }
+  .track{
+    height:18px; border-radius:999px;
+    background:var(--inset); border:1px solid var(--line);
+    overflow:hidden; position:relative;
+  }
+  .fill{
+    height:100%; width:0%; border-radius:999px;
+    background:linear-gradient(90deg, var(--surge-deep), var(--surge));
+    box-shadow:0 0 22px rgba(185,246,99,.45);
+    transition:width 1.3s cubic-bezier(.16,1,.3,1);
+  }
+  .track-scale{
+    display:flex; justify-content:space-between; margin-top:9px;
+    font-size:clamp(.6rem,1.2vw,.72rem); letter-spacing:.1em;
+    color:var(--muted); font-family:var(--mono);
+  }
+
+  /* ── stat line ── */
+  .stats{
+    margin-top:clamp(28px,4.5vw,44px);
+    display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(10px,1.6vw,16px);
+  }
+  .stat{
+    background:var(--inset); border:1px solid var(--line); border-radius:12px;
+    padding:clamp(14px,2.2vw,22px) clamp(10px,1.6vw,16px); text-align:center;
+  }
+  .stat-val{
+    font-family:var(--mono); font-weight:700; font-variant-numeric:tabular-nums;
+    font-size:clamp(1.3rem,3.4vw,2.3rem); color:var(--text); line-height:1;
+  }
+  .stat-label{
+    margin-top:10px; font-weight:700; font-size:clamp(.6rem,1.25vw,.74rem);
+    letter-spacing:.18em; text-transform:uppercase; color:var(--muted);
+  }
+
+  /* ── footer ── */
+  .footer{
+    margin-top:clamp(26px,4vw,40px); padding-top:clamp(16px,2.5vw,22px);
+    border-top:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    font-size:clamp(.64rem,1.3vw,.8rem); color:var(--muted); letter-spacing:.04em;
+  }
+  .ribbon{
+    color:var(--surge); font-weight:800; letter-spacing:.2em; text-transform:uppercase;
+    opacity:0; transition:opacity .5s ease;
+  }
+  .ribbon.show{ opacity:1; }
+
+  .fs{
+    position:fixed; top:18px; right:18px; z-index:30;
+    width:38px; height:38px; display:grid; place-items:center;
+    background:var(--panel-bot); border:1px solid var(--line); border-radius:9px;
+    color:var(--muted); cursor:pointer; transition:color .2s, border-color .2s;
+  }
+  .fs:hover, .fs:focus-visible{ color:var(--surge); border-color:var(--surge-deep); outline:none; }
+  .fs svg{ width:17px; height:17px; }
+
+  @media (max-width:560px){
+    .stats{ grid-template-columns:1fr; }
+    .signage{ flex-direction:column; align-items:flex-start; gap:8px; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .fill{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+
+<button class="fs" id="fsBtn" title="Fullscreen" aria-label="Toggle fullscreen">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/>
+  </svg>
+</button>
+
+<main class="board" role="main">
+  <div class="signage">
+    <div class="brand" id="brand">Totango <span>Deal Board</span></div>
+    <div class="period" id="period"></div>
+  </div>
+
+  <div class="label">Total NewCo Sales — Year to Date</div>
+  <div class="total" id="total"><span class="cur">$</span><span id="totalNum">0</span></div>
+
+  <div class="track-wrap" id="trackWrap">
+    <div class="track-top">
+      <div class="track-pct" id="trackPct"><b>0%</b> to goal</div>
+      <div class="track-goal" id="trackGoal"></div>
+    </div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="track-scale"><span>$0</span><span id="scaleGoal"></span></div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="footer">
+    <span id="updated">Updated —</span>
+    <span class="ribbon" id="ribbon">🔔 Goal smashed</span>
+    <span>Refreshed weekly</span>
+  </div>
+</main>
+
+<script>
+(function(){
+  const cfg = window.BOARD || {};
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+  const money = n => '$' + fmt(n);
+  const compact = n => {
+    if (n >= 1e6) return '$' + (n/1e6).toFixed(n % 1e6 === 0 ? 0 : 1) + 'M';
+    if (n >= 1e3) return '$' + (n/1e3).toFixed(n % 1e3 === 0 ? 0 : 1) + 'K';
+    return '$' + fmt(n);
+  };
+
+  document.getElementById('brand').innerHTML =
+    (cfg.teamName || 'Totango') + ' <span>Deal Board</span>';
+  document.title = (cfg.teamName || 'Totango') + ' Deal Board';
+  document.getElementById('period').textContent = cfg.period || '';
+  document.getElementById('updated').textContent = 'Updated ' + (cfg.lastUpdated || '—');
+
+  const ytd  = Number(cfg.ytdSales)   || 0;
+  const goal = Number(cfg.annualGoal) || 0;
+  const over = goal > 0 && ytd >= goal;
+
+  const statsEl = document.getElementById('stats');
+  const stats = Array.isArray(cfg.stats) ? cfg.stats : [];
+  if (!stats.length){ statsEl.style.display = 'none'; }
+  stats.forEach((s,i) => {
+    const d = document.createElement('div');
+    d.className = 'stat';
+    d.style.opacity = '0';
+    d.innerHTML = '<div class="stat-val">'+ (s.value ?? '') +
+                  '</div><div class="stat-label">'+ (s.label ?? '') +'</div>';
+    statsEl.appendChild(d);
+    setTimeout(()=>{ d.style.transition='opacity .5s ease'; d.style.opacity='1'; },
+               reduce ? 0 : 900 + i*140);
+  });
+
+  const trackWrap = document.getElementById('trackWrap');
+  if (goal <= 0){
+    trackWrap.style.display = 'none';
+  } else {
+    document.getElementById('trackGoal').textContent = money(goal) + ' goal';
+    document.getElementById('scaleGoal').textContent = compact(goal) + ' goal';
+  }
+
+  const totalEl  = document.getElementById('total');
+  const totalNum = document.getElementById('totalNum');
+  const fill     = document.getElementById('fill');
+  const trackPct = document.getElementById('trackPct');
+  const ribbon   = document.getElementById('ribbon');
+
+  const pct = goal > 0 ? (ytd / goal) * 100 : 0;
+  const pctText = (Math.round(pct*10)/10).toLocaleString('en-US');
+
+  function finish(){
+    totalNum.textContent = fmt(ytd);
+    if (over){ totalEl.classList.add('win'); ribbon.classList.add('show'); }
+    if (goal > 0){
+      fill.style.width = Math.min(pct,100) + '%';
+      trackPct.innerHTML = '<b>'+ pctText +'%</b> to goal';
+    }
+    if (over) launchConfetti();
+  }
+
+  if (reduce){ finish(); return; }
+
+  const DUR = 1900;
+  const t0 = performance.now();
+  const easeOutExpo = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+
+  function tick(now){
+    const t = Math.min((now - t0) / DUR, 1);
+    const e = easeOutExpo(t);
+    totalNum.textContent = fmt(ytd * e);
+    if (goal > 0) trackPct.innerHTML = '<b>'+ (pct*e).toFixed(1) +'%</b> to goal';
+    if (t < 1){ requestAnimationFrame(tick); } else { finish(); }
+  }
+  requestAnimationFrame(tick);
+  setTimeout(()=>{ if (goal>0) fill.style.width = Math.min(pct,100)+'%'; }, 350);
+
+  function launchConfetti(){
+    if (reduce) return;
+    const c = document.getElementById('confetti');
+    const ctx = c.getContext('2d');
+    let W = c.width = innerWidth, H = c.height = innerHeight;
+    addEventListener('resize', ()=>{ W=c.width=innerWidth; H=c.height=innerHeight; });
+    const colors = ['#B9F663','#F0EFE5','#FF7E4F','#6E9A35'];
+    const P = Array.from({length:140}, ()=>({
+      x: Math.random()*W, y: -20 - Math.random()*H*0.4,
+      r: 4 + Math.random()*6, vy: 2 + Math.random()*3.5, vx: -1.5 + Math.random()*3,
+      rot: Math.random()*Math.PI, vr: -0.2 + Math.random()*0.4,
+      col: colors[(Math.random()*colors.length)|0]
+    }));
+    const start = performance.now();
+    (function draw(now){
+      const life = now - start;
+      ctx.clearRect(0,0,W,H);
+      P.forEach(p=>{
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vy += 0.03;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+        ctx.globalAlpha = Math.max(0, 1 - life/3400);
+        ctx.fillStyle = p.col;
+        ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
+        ctx.restore();
+      });
+      if (life < 3400) requestAnimationFrame(draw); else ctx.clearRect(0,0,W,H);
+    })(start);
+  }
+
+  document.getElementById('fsBtn').addEventListener('click', ()=>{
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
+})();
+</script>
+</body>
+</html>
